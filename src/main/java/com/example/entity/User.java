@@ -28,5 +28,6 @@ public class User {
     @Embedded
     private TwoFactorAuth twoFactorAuth = new TwoFactorAuth();
 
-    private USER_ROLE role = USER_ROLE.ROLE_CUSTOMER;
+    @Enumerated(EnumType.STRING)
+    private USER_ROLE role ;
 }

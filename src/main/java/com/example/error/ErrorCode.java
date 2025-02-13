@@ -22,7 +22,7 @@ public enum ErrorCode {
     USER_NOT_EXISTED(2007, "User does not exist", HttpStatus.NOT_FOUND),
     USER_UNAUTHENTICATED(2008, "User Unauthenticated", HttpStatus.FORBIDDEN),
     USER_UNAUTHORIZED(2009, "User Unauthorized", HttpStatus.FORBIDDEN),
-
+    USER_INPUT_WRONG_PASSWORD (2010,"Wrong email or password",HttpStatus.BAD_REQUEST),
 
     // Validation errors (VALIDATION)
     VALIDATION_INVALID_INPUT(3001, "Invalid input", HttpStatus.BAD_REQUEST),

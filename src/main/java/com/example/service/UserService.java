@@ -4,6 +4,7 @@ package com.example.service;
 import com.example.configuration.JwtProvider;
 import com.example.domain.TwoFactorAuth;
 import com.example.domain.VerificationType;
+import com.example.entity.ForgotPasswordToken;
 import com.example.entity.TwoFactorOTP;
 import com.example.entity.User;
 import com.example.entity.VerificationCode;
@@ -12,8 +13,12 @@ import com.example.error.ErrorCode;
 import com.example.exception.AppException;
 import com.example.mapper.UserMapper;
 import com.example.repository.UserRepository;
+import com.example.request.ForgotPasswordTokenRequest;
+import com.example.request.ResetPasswordRequest;
 import com.example.request.UserCreationRequest;
+import com.example.response.ApiResponse;
 import com.example.response.AuthResponse;
+import com.example.response.ResetPasswordResponse;
 import com.example.response.UserResponse;
 import com.example.utils.OtpUtils;
 import jakarta.mail.MessagingException;
@@ -30,6 +35,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 
 @Slf4j
 @Service
@@ -43,6 +50,7 @@ public class UserService implements IUserService {
     EmailService emailService;
     VerificationCode verificationCode;
     VerificationCodeService verificationCodeService;
+    ForgotPasswordService forgotPasswordService;
 
     @Override
     public AuthResponse createAccount(UserCreationRequest request) {
@@ -165,7 +173,6 @@ public class UserService implements IUserService {
         if (user == null) {
             throw new AppException(ErrorCode.USER_NOT_FOUND);
         }
-
         // Get or create verification code
         VerificationCode verificationCode =
                 verificationCodeService.getVerificationCodeByUser(user.getId());
@@ -181,7 +188,6 @@ public class UserService implements IUserService {
 
         return "Verification OTP sent successfully!";
     }
-
 
     public User enableTwoFactorAuthentication(String jwt, String otp) {
         User user = findUserbyJwt(jwt);
@@ -204,6 +210,50 @@ public class UserService implements IUserService {
         }
 
         throw new AppException(ErrorCode.INVALID_OTP);
+    }
+
+    @Override
+    public AuthResponse sendForgotPasswordOtp(ForgotPasswordTokenRequest request) throws MessagingException {
+
+        User user = findUserByEmail(request.getSendTo());
+        if (user == null) {
+            throw new AppException(ErrorCode.USER_NOT_FOUND);
+        }
+        String otp = OtpUtils.generatedOTP();
+        UUID uuid = UUID.randomUUID();
+        String id = uuid.toString();
+
+        ForgotPasswordToken token = forgotPasswordService.findByUser(user.getId());
+        if (token == null) {
+            token = forgotPasswordService.createToken(
+                    user, id, otp, request.getVerificationType(), request.getSendTo());
+        }
+        if (request.getVerificationType().equals(VerificationType.EMAIL)) {
+            emailService.sendVerificationOtpEmail(user.getEmail(), token.getOtp());
+
+        }
+        AuthResponse authResponse = new AuthResponse();
+        authResponse.setSession(token.getId());
+        authResponse.setMessage("Password reset otp sent successfully");
+
+        return authResponse;
+    }
+
+    @Override
+    public ResetPasswordResponse resetPassword(String id, String jwt
+            , ResetPasswordRequest request) {
+        ForgotPasswordToken forgotPasswordToken = forgotPasswordService.findById(id);
+        boolean isVerified = forgotPasswordToken.getOtp().equals(request.getOtp());
+        ResetPasswordResponse response = new ResetPasswordResponse();
+
+        if (isVerified) {
+            updatePassword(forgotPasswordToken.getUser(), request.getPassword());
+            response.setMessage("password update successfully");
+        } else {
+            response.setMessage("Wrong otp");
+        }
+        return response;
+
     }
 
 }

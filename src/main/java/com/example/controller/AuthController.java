@@ -2,9 +2,12 @@ package com.example.controller;
 
 import com.example.domain.VerificationType;
 import com.example.entity.User;
+import com.example.request.ForgotPasswordTokenRequest;
+import com.example.request.ResetPasswordRequest;
 import com.example.request.UserCreationRequest;
 import com.example.response.ApiResponse;
 import com.example.response.AuthResponse;
+import com.example.response.ResetPasswordResponse;
 import com.example.response.UserResponse;
 import com.example.service.EmailService;
 import com.example.service.IUserService;
@@ -71,7 +74,7 @@ public class AuthController {
     //Updated user details are returned.
     @PatchMapping("/users/enable-two-factor/verify-otp/{otp}")
     public ApiResponse<User> enableTwoFactorAuthentication(@RequestHeader("Authorization") String jwt,
-    @PathVariable String otp) {
+                                                           @PathVariable String otp) {
         User user = userService.findUserbyJwt(jwt);
         return ApiResponse.<User>builder()
                 .result(userService.findUserbyJwt(jwt))
@@ -90,9 +93,31 @@ public class AuthController {
             @PathVariable VerificationType verificationType
     ) throws Exception {
         return ApiResponse.<String>builder()
-                .result(userService.sendVerificationOtp(jwt,verificationType))
+                .result(userService.sendVerificationOtp(jwt, verificationType))
                 .build();
     }
 
+    // forgot passowrd
+    @PostMapping("/auth/users/reset-password/send-otp")
+    public ApiResponse<AuthResponse> sendForgotPasswordOtp(
+            @RequestBody ForgotPasswordTokenRequest req
+    ) throws Exception {
 
+        return ApiResponse.<AuthResponse>builder()
+                .result(userService.sendForgotPasswordOtp(req))
+                .build();
+    }
+
+    //
+    @PatchMapping("/auth/users/reset-password/verify-otp")
+    public ApiResponse<ResetPasswordResponse> resetPassword(
+            @RequestParam String id,
+            @RequestHeader("Authorization") String jwt,
+            @RequestBody ResetPasswordRequest request
+            ) {
+        User user = userService.findUserbyJwt(jwt);
+        return ApiResponse.<ResetPasswordResponse>builder()
+                .result(userService.resetPassword(id,jwt,request))
+                .build();
+    }
 }

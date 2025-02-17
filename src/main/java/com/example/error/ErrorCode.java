@@ -38,7 +38,15 @@ public enum ErrorCode {
     // 🔹 System errors (SYSTEM)
     SYS_DATABASE_ERROR(5001, "Database error", HttpStatus.INTERNAL_SERVER_ERROR),
     SYS_UNEXPECTED_ERROR(5002, "Unexpected system error", HttpStatus.INTERNAL_SERVER_ERROR),
-    JSON_WRONG_FORMAT(5003, "Invalid JSON format", HttpStatus.BAD_REQUEST);
+    JSON_WRONG_FORMAT(5003, "Invalid JSON format", HttpStatus.BAD_REQUEST),
+
+
+    API_REQUEST_FAILED(6001, "API request failed", HttpStatus.SERVICE_UNAVAILABLE),
+    INVALID_RESPONSE_FORMAT(6002, "Invalid response format from API", HttpStatus.BAD_REQUEST),
+    INVALID_PAGE_NUMBER(6003, "Invalid page number", HttpStatus.BAD_REQUEST),
+    NETWORK_ERROR(6004, "Network connection error", HttpStatus.GATEWAY_TIMEOUT),
+
+    COIN_NOT_FOUND(7001, "Coin not found", HttpStatus.NOT_FOUND);
 
     private final int code;
     private final String message;

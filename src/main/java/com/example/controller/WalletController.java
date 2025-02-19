@@ -6,6 +6,7 @@ import com.example.entity.User;
 import com.example.entity.Wallet;
 import com.example.entity.WalletTransaction;
 import com.example.response.ApiResponse;
+import com.example.service.IOrderService;
 import com.example.service.IUserService;
 import com.example.service.IWalletService;
 import lombok.AccessLevel;
@@ -23,6 +24,7 @@ public class WalletController {
 
     IUserService userService;
 
+    IOrderService orderService;
 
     @GetMapping
     public ApiResponse<Wallet> getUserWallet(@RequestHeader("Authorization") String jwt) {

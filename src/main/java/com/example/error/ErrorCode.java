@@ -50,7 +50,9 @@ public enum ErrorCode {
 
     WALLET_NOT_FOUND(8001, "Coin not found", HttpStatus.NOT_FOUND),
 
-    ORDER_NOT_FOUND(9001, "Order not found", HttpStatus.NOT_FOUND);
+    ORDER_NOT_FOUND(9001, "Order not found", HttpStatus.NOT_FOUND),
+
+    ASSET_NOT_FOUND(9001, "Order not found", HttpStatus.NOT_FOUND);
 
 
     private final int code;

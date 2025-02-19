@@ -46,7 +46,12 @@ public enum ErrorCode {
     INVALID_PAGE_NUMBER(6003, "Invalid page number", HttpStatus.BAD_REQUEST),
     NETWORK_ERROR(6004, "Network connection error", HttpStatus.GATEWAY_TIMEOUT),
 
-    COIN_NOT_FOUND(7001, "Coin not found", HttpStatus.NOT_FOUND);
+    COIN_NOT_FOUND(7001, "Coin not found", HttpStatus.NOT_FOUND),
+
+    WALLET_NOT_FOUND(8001, "Coin not found", HttpStatus.NOT_FOUND),
+
+    ORDER_NOT_FOUND(9001, "Order not found", HttpStatus.NOT_FOUND);
+
 
     private final int code;
     private final String message;

@@ -52,7 +52,9 @@ public enum ErrorCode {
 
     ORDER_NOT_FOUND(9001, "Order not found", HttpStatus.NOT_FOUND),
 
-    ASSET_NOT_FOUND(9001, "Order not found", HttpStatus.NOT_FOUND);
+    ASSET_NOT_FOUND(9001, "Order not found", HttpStatus.NOT_FOUND),
+
+    WITHDRAW_NOT_FOUND(10001, "Order not found", HttpStatus.NOT_FOUND);
 
 
     private final int code;

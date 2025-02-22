@@ -56,7 +56,9 @@ public enum ErrorCode {
 
     WITHDRAW_NOT_FOUND(10001, "Withdraw not found", HttpStatus.NOT_FOUND),
 
-    WATCHLIST_NOT_FOUND(11001, "WatchList not found", HttpStatus.NOT_FOUND);
+    WATCHLIST_NOT_FOUND(11001, "WatchList not found", HttpStatus.NOT_FOUND),
+
+    PAYMENT_NOT_FOUND(12001, "Payment not found", HttpStatus.NOT_FOUND);
 
 
     private final int code;

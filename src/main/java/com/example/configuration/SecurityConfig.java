@@ -42,7 +42,7 @@ public class SecurityConfig {
             public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
                 CorsConfiguration cfg = new CorsConfiguration();
                 cfg.setAllowCredentials(true); // ✅ Cho phép gửi cookies/tokens giữa các domain
-                cfg.setAllowedOrigins(Arrays.asList("http://localhost:5173", "http://localhost:3000")); // ✅ Cho phép các domain này
+                cfg.setAllowedOrigins(Arrays.asList("https://vagio-trading-project.vercel.app","http://localhost:5173", "http://localhost:3000")); // ✅ Cho phép các domain này
                 cfg.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS")); // ✅ Cho phép các phương thức HTTP
                 cfg.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type")); // ✅ Cho phép các headers này
                 cfg.setMaxAge(3600L);

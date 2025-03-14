@@ -4,7 +4,7 @@ import com.example.entity.Coin;
 
 import java.util.List;
 
-public interface IcoinService {
+public interface ICoinService {
 
     List<Coin> geCoinList(int page);
 
@@ -18,5 +18,5 @@ public interface IcoinService {
 
     String getTop50CoinByMarketCapRank();
 
-    String getTradingCoin();
+    String getTradingCoin(String keyword);
 }

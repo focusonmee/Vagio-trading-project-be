@@ -2,10 +2,15 @@ package com.example.entity;
 
 import com.example.domain.VerificationType;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 
+
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
-@Data
+@Table(name = "verification_code") // Đảm bảo tên bảng đúng
 public class VerificationCode {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

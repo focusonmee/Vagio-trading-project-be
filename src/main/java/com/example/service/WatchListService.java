@@ -20,12 +20,10 @@ public class WatchListService implements IWatchListService {
 
     @Override
     public WatchList findUserWatchList(Long userId) {
-        WatchList watchList = watchListRepository.findByUserId(userId);
-        if (watchList == null) {
-            throw new AppException(ErrorCode.WATCHLIST_NOT_FOUND);
-        }
-        return watchList;
+        return watchListRepository.findByUser_Id(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.WATCHLIST_NOT_FOUND));
     }
+
 
     @Override
     public WatchList createWatchList(User user) {

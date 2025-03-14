@@ -113,6 +113,8 @@
 						<path>
 							<groupId>org.projectlombok</groupId>
 							<artifactId>lombok</artifactId>
+							<version>1.18.30</version> <!-- Kiểm tra phiên bản mới nhất -->
+
 						</path>
 						<path>
 							<groupId>org.mapstruct</groupId>

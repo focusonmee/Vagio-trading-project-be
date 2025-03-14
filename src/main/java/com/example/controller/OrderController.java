@@ -13,7 +13,7 @@ import com.example.response.ApiResponse;
 import com.example.service.IOrderService;
 import com.example.service.IUserService;
 import com.example.service.IWalletService;
-import com.example.service.IcoinService;
+import com.example.service.ICoinService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -28,7 +28,7 @@ import java.util.List;
 public class OrderController {
     IOrderService orderService;
     IUserService userService;
-    IcoinService coinService;
+    ICoinService coinService;
     IWalletService walletService;
 
     @GetMapping("/pay")

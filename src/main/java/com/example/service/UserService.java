@@ -16,21 +16,16 @@ import com.example.repository.UserRepository;
 import com.example.request.ForgotPasswordTokenRequest;
 import com.example.request.ResetPasswordRequest;
 import com.example.request.UserCreationRequest;
-import com.example.response.ApiResponse;
 import com.example.response.AuthResponse;
 import com.example.response.ResetPasswordResponse;
-import com.example.response.UserResponse;
 import com.example.utils.OtpUtils;
 import jakarta.mail.MessagingException;
 import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -38,7 +33,6 @@ import org.springframework.stereotype.Service;
 import java.util.UUID;
 
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -48,9 +42,9 @@ public class UserService implements IUserService {
     UserMapper userMapper;
     TwoFactorOtpService twoFactorOtpService;
     EmailService emailService;
-    VerificationCode verificationCode;
     VerificationCodeService verificationCodeService;
     ForgotPasswordService forgotPasswordService;
+    WatchListService watchListService;
 
     @Override
     public AuthResponse createAccount(UserCreationRequest request) {
@@ -61,7 +55,8 @@ public class UserService implements IUserService {
         newUser.setRole(USER_ROLE.ROLE_CUSTOMER);
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         newUser.setPassword(passwordEncoder.encode(request.getPassword()));
-        userRepository.save(newUser);
+        User savedUser = userRepository.save(newUser);
+        watchListService.createWatchList(savedUser);
         Authentication auth = new UsernamePasswordAuthenticationToken(
                 request.getEmail(),
                 request.getPassword());

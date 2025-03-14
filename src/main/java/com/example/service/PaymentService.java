@@ -17,21 +17,17 @@ import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.billingportal.Session;
 import com.stripe.param.checkout.SessionCreateParams;
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
 @Service
-@RequiredArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-
 public class PaymentService implements IPaymentService {
 
+    @Autowired
     PaymentOrderRepository paymentOrderRepository;
 
     @Value("${stripe.api.key}")
@@ -96,7 +92,7 @@ public class PaymentService implements IPaymentService {
             customer.put("name", user.getFullName());
             //
             customer.put("email", user.getEmail());
-            paymentLinkRequest.put("cusomer", customer);
+            paymentLinkRequest.put("customer", customer);
             //
             JSONObject notify = new JSONObject();
             notify.put("email", true);
@@ -104,7 +100,7 @@ public class PaymentService implements IPaymentService {
 
             paymentLinkRequest.put("reminder_enable", true);
 
-            paymentLinkRequest.put("callback_url", "http://localhost:5173/wallet");
+            paymentLinkRequest.put("callback_url", "http://localhost:8080/api/v1/wallet");
             paymentLinkRequest.put("callback_method", "get");
 
             PaymentLink payment = razorpay.paymentLink.create(paymentLinkRequest);

@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("coins")
+@RequestMapping("/api/v1/coins")
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
 public class CoinController {
@@ -24,7 +24,7 @@ public class CoinController {
     ObjectMapper objectMapper;
 
     @GetMapping
-    public ApiResponse<List<Coin>> getCoinList(@RequestParam("page") int page) {
+    public ApiResponse<List<Coin>> getCoinList(@RequestParam(required = false, name = "page") int page) {
         List<Coin> coins = coinService.geCoinList(page);
         return ApiResponse.<List<Coin>>builder()
                 .result(coins)
@@ -64,7 +64,7 @@ public class CoinController {
     @GetMapping("/trading")
     public ApiResponse<JsonNode> getTradingCoin(
             @RequestParam("q") String keyword) throws JsonProcessingException {
-        String coin = coinService.getTradingCoin();
+        String coin = coinService.getTradingCoin(keyword);
         JsonNode jsonNode = objectMapper.readTree(coin);
         return ApiResponse.<JsonNode>builder()
                 .result(jsonNode)

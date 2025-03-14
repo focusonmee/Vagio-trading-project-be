@@ -8,14 +8,11 @@ import com.example.request.UserCreationRequest;
 import com.example.response.ApiResponse;
 import com.example.response.AuthResponse;
 import com.example.response.ResetPasswordResponse;
-import com.example.response.UserResponse;
 import com.example.service.EmailService;
 import com.example.service.IUserService;
-import com.example.service.IVerificationCode;
 import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -68,6 +65,17 @@ public class AuthController {
 
     }
 
+    @GetMapping("/users/{id}")
+    public ApiResponse<User> getUserById(@RequestHeader("Authorization") String jwt,
+                                         @PathVariable Long id) {
+        User user = userService.findUserById(id);
+        return ApiResponse.<User>builder()
+                .result(user)
+                .build();
+
+    }
+
+
     //Client sends a request to enable 2FA and provides an OTP.
     //The user is identified using userService.findUserbyJwt(jwt).
     //userService.enableTwoFactor(jwt, otp) verifies OTP and enables 2FA for the user.
@@ -110,7 +118,7 @@ public class AuthController {
 
     //
     @PatchMapping("/auth/users/reset-password/verify-otp")
-    public ApiResponse<ResetPasswordResponse> resetPassword(
+    public ApiResponse<ResetPasswordResponse>resetPassword(
             @RequestParam String id,
             @RequestHeader("Authorization") String jwt,
             @RequestBody ResetPasswordRequest request

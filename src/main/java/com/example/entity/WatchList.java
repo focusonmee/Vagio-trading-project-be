@@ -2,12 +2,18 @@ package com.example.entity;
 
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Data
+@Getter
+@Setter
+@AllArgsConstructor
+@RequiredArgsConstructor
 @Entity
 public class WatchList {
 
@@ -18,6 +24,7 @@ public class WatchList {
     @OneToOne
     private User user;
 
-    @ManyToOne
-    private List<Coin>coins = new ArrayList<>();
+
+    @ManyToMany
+    private List<Coin> coins = new ArrayList<>();
 }

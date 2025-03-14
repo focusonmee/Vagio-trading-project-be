@@ -5,9 +5,9 @@ import com.example.entity.Coin;
 import com.example.entity.User;
 import com.example.entity.WatchList;
 import com.example.response.ApiResponse;
+import com.example.service.ICoinService;
 import com.example.service.IUserService;
 import com.example.service.IWatchListService;
-import com.example.service.IcoinService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -16,11 +16,11 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-@RequestMapping("/api/watchlist")
+@RequestMapping("/api/v1/watchlist")
 public class WatchListController {
     IWatchListService watchListService;
     IUserService userService;
-    IcoinService coiService;
+    ICoinService coiService;
 
     @GetMapping
     public ApiResponse<WatchList> getUserWatchList(@RequestHeader("Authorization") String jwt) {

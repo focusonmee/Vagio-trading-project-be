@@ -10,13 +10,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
@@ -25,10 +24,16 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class CoinService implements IcoinService {
+public class CoinService implements ICoinService {
     CoinRepository coinRepository;
 
     ObjectMapper objectMapper;
+
+    @Autowired
+    public CoinService(CoinRepository coinRepository, ObjectMapper objectMapper) {
+        this.coinRepository = coinRepository;
+        this.objectMapper = objectMapper;
+    }
 
     @Override
     public List<Coin> geCoinList(int page) {
@@ -37,6 +42,8 @@ public class CoinService implements IcoinService {
 
         try {
             HttpHeaders headers = new HttpHeaders();
+            headers.set("Accept", "application/json");
+
             HttpEntity<String> entity = new HttpEntity<>("parameters", headers);
 
             ResponseEntity<String> response =
@@ -78,31 +85,35 @@ public class CoinService implements IcoinService {
 
         try {
             HttpHeaders headers = new HttpHeaders();
-            HttpEntity<String> entity = new HttpEntity<>("parameters", headers);
+            HttpEntity<String> entity = new HttpEntity<>(headers);
 
             ResponseEntity<String> response =
                     restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
 
             JsonNode jsonNode = objectMapper.readTree(response.getBody());
             Coin coin = new Coin();
-            coin.setId(jsonNode.get("id").asText());
-            coin.setName(jsonNode.get("name").asText());
-            coin.setSymbol(jsonNode.get("symbol").asText());
-            coin.setImage(jsonNode.get("image").get("large").asText());
+
+            coin.setId(getTextValue(jsonNode, "id"));
+            coin.setName(getTextValue(jsonNode, "name"));
+            coin.setSymbol(getTextValue(jsonNode, "symbol"));
+
+            JsonNode imageNode = jsonNode.get("image");
+            coin.setImage(imageNode != null && imageNode.has("large") ? imageNode.get("large").asText() : "");
 
             JsonNode marketData = jsonNode.get("market_data");
-            coin.setCurrentPrice(marketData.get("current_price").get("usd").asDouble());
-            coin.setMarketCap(marketData.get("market_cap").get("usd").asLong());
-            coin.setMarketCapRank(marketData.get("market_cap_rank").asInt());
-            coin.setTotalVolume(marketData.get("total_volume").get("usd").asLong());
-            coin.setHigh24h(marketData.get("high_24h").get("usd").asDouble());
-            coin.setLow24h(marketData.get("low_24h").get("usd").asDouble());
-            coin.setPriceChange24h(marketData.get("price_change_24h").get("usd").asDouble());
-            coin.setPriceChangePercentage24h(marketData.get("price_change_percentage_24h").asDouble());
-            coin.setMarketCapChange24h(marketData.get("market_cap_change_24h").asLong());
 
-            coin.setMarketCapChangePercentage24h(marketData.get("market_cap_change_percentage_24h").asLong());
-            coin.setTotalSupply(marketData.has("total_supply") ? marketData.get("total_supply").asLong() : 0L);
+            coin.setCurrentPrice(getDoubleValue(marketData, "current_price", "usd"));
+            coin.setMarketCap(getLongValue(marketData, "market_cap", "usd"));
+            coin.setMarketCapRank(getIntValue(marketData, "market_cap_rank"));
+            coin.setTotalVolume(getLongValue(marketData, "total_volume", "usd"));
+            coin.setHigh24h(getDoubleValue(marketData, "high_24h", "usd"));
+            coin.setLow24h(getDoubleValue(marketData, "low_24h", "usd"));
+            coin.setPriceChange24h(getDoubleValue(marketData, "price_change_24h", "usd"));
+            coin.setPriceChangePercentage24h(getDoubleValue(marketData, "price_change_percentage_24h"));
+            coin.setMarketCapChange24h(getLongValue(marketData, "market_cap_change_24h"));
+            coin.setMarketCapChangePercentage24h(getDoubleValue(marketData, "market_cap_change_percentage_24h"));
+            coin.setTotalSupply(getLongValue(marketData, "total_supply"));
+
             coinRepository.save(coin);
             return response.getBody();
 
@@ -110,6 +121,7 @@ public class CoinService implements IcoinService {
             throw new AppException(ErrorCode.API_REQUEST_FAILED);
         }
     }
+
 
     @Override
     public Coin findById(String coinId) {
@@ -158,22 +170,57 @@ public class CoinService implements IcoinService {
     }
 
     @Override
-    public String getTradingCoin() {
-        String url = "https://api.coingecko.com/api/v3/search/trading";
+    public String getTradingCoin(String keyword) {
+        String url = "https://api.coingecko.com/api/v3/search?query=" + keyword;
 
         RestTemplate restTemplate = new RestTemplate();
-
         try {
             HttpHeaders headers = new HttpHeaders();
-            HttpEntity<String> entity = new HttpEntity<>("parameters", headers);
+            HttpEntity<String> entity = new HttpEntity<>(headers);
 
             ResponseEntity<String> response =
                     restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
 
             return response.getBody();
-
         } catch (Exception e) {
             throw new AppException(ErrorCode.API_REQUEST_FAILED);
         }
     }
+
+    private String getTextValue(JsonNode node, String fieldName) {
+        return (node != null && node.has(fieldName) && !node.get(fieldName).isNull())
+                ? node.get(fieldName).asText()
+                : "";
+    }
+
+    private double getDoubleValue(JsonNode node, String fieldName) {
+        return (node != null && node.has(fieldName) && !node.get(fieldName).isNull())
+                ? node.get(fieldName).asDouble()
+                : 0.0;
+    }
+
+    private double getDoubleValue(JsonNode node, String fieldName, String subField) {
+        return (node != null && node.has(fieldName) && node.get(fieldName).has(subField) && !node.get(fieldName).get(subField).isNull())
+                ? node.get(fieldName).get(subField).asDouble()
+                : 0.0;
+    }
+
+    private long getLongValue(JsonNode node, String fieldName) {
+        return (node != null && node.has(fieldName) && !node.get(fieldName).isNull())
+                ? node.get(fieldName).asLong()
+                : 0L;
+    }
+
+    private long getLongValue(JsonNode node, String fieldName, String subField) {
+        return (node != null && node.has(fieldName) && node.get(fieldName).has(subField) && !node.get(fieldName).get(subField).isNull())
+                ? node.get(fieldName).get(subField).asLong()
+                : 0L;
+    }
+
+    private int getIntValue(JsonNode node, String fieldName) {
+        return (node != null && node.has(fieldName) && !node.get(fieldName).isNull())
+                ? node.get(fieldName).asInt()
+                : 0;
+    }
+
 }

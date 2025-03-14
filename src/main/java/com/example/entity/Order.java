@@ -18,6 +18,7 @@ import java.util.Locale;
 @NoArgsConstructor
 @Getter
 @Setter
+@Table(name = "orders") // Đổi tên bảng
 public class Order {
 
     @Id

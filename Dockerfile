@@ -1,17 +1,22 @@
 # Sử dụng OpenJDK làm base image
 FROM openjdk:17-jdk-slim
 
-# Cài đặt Maven
-RUN apt-get update && apt-get install -y maven
-
 # Đặt thư mục làm việc trong container
 WORKDIR /app
 
-# Copy toàn bộ project vào container
-COPY . .
+# Copy file cấu hình Maven và source code vào container
+COPY pom.xml mvnw mvnw.cmd ./
+COPY .mvn .mvn
+COPY src src
+
+# Cấp quyền thực thi cho mvnw
+RUN chmod +x mvnw
 
 # Biên dịch source code bằng Maven
-RUN mvn clean package -DskipTests
+RUN ./mvnw clean package -DskipTests
+
+# Copy file JAR đã build sang thư mục chạy ứng dụng
+RUN cp target/*.jar app.jar
 
 # Chạy ứng dụng Spring Boot
-CMD ["java", "-jar", "target/*.jar"]
+CMD ["java", "-jar", "app.jar"]
